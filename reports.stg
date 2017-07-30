@@ -1,0 +1,11 @@
+welcome(first_name, target) ::= <<
+Hello, <first_name>
+
+Please click this \<a href="<target>">link\</a> to finish registering your account.
+>>
+
+reset(first_name, target) ::= <<
+Hello, <first_name>
+
+Please click this \<a href="<target>">link\</a> to finish resetting your password.
+>>

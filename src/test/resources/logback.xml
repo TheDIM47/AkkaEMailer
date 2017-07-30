@@ -1,0 +1,13 @@
+<configuration scan="true" scanPeriod="60 seconds">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date %level %logger - [%level] %message%n%xException</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.arivera" level="ERROR"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
