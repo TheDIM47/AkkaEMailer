@@ -59,6 +59,8 @@ libraryDependencies ++= Seq(
 
 fork in Test := true
 
+assemblyJarName in assembly := "akka-emailer-" + version.value +".jar"
+
 //excludeDependencies ++= Seq(
 //  SbtExclusionRule("org.slf4j", "slf4j-log4j12")
 //)
