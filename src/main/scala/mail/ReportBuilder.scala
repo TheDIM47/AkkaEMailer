@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory
 
 import scala.util.{Failure, Success}
 
+/**
+  * Load and render report template
+  *
+  * @param conf Configuration
+  */
 class ReportBuilder(conf: Config) {
   private val log = LoggerFactory.getLogger(classOf[ReportBuilder])
 
@@ -14,6 +19,7 @@ class ReportBuilder(conf: Config) {
 
   def build(message: RequestMessage): String = build(conf.getString(s"report.${message.rtype}"), message)
 
+  // Template indexed by templateName. See application.conf
   private def build(templateName: String, message: RequestMessage): String = {
     group.instanceOf(templateName) match {
       case Success(template) =>

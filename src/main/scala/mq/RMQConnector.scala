@@ -6,9 +6,10 @@ import com.typesafe.config.Config
 import org.slf4j.LoggerFactory
 
 /**
-  * RMQ Consumer
+  * RMQ Message Consumer (basicConsume(...) Callback)
   *
   * @param channel RMQ Channel
+  * @param consumer Handle received RMQ Message
   */
 class RMQConsumer[A](channel: Channel, consumer: (Long, Array[Byte]) => A) extends DefaultConsumer(channel: Channel) {
   private val log = LoggerFactory.getLogger(classOf[RMQConsumer[A]])

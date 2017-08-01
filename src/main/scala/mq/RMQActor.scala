@@ -30,11 +30,19 @@ class MailerMap {
   def remove(tag: Long): Unit = mmap.remove(tag)
 }
 
+/**
+  * Create and handle RabbitMQ connection
+  * Receive: [[mq.RMQProtocol.RMQMessage]], [[mq.RMQProtocol.AckMessage]]
+  * Create Mailer actor and send RMQ message for following processing inside mail actor.
+  * If email message was sent successfully, send back ack message to RMQ.
+  * @param conf Configuration
+  */
 class RMQActor(conf: Config) extends Actor {
   private val log = LoggerFactory.getLogger(classOf[RMQActor])
   private val listener: RMQHandlerT = TypedActor(context).typedActorOf(TypedProps(classOf[RMQHandlerT], new RMQHandler(conf, self)))
   private val mmap = new MailerMap
 
+  /** Supervisor strategy - restart child actors on message/connection problems */
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1.minute) {
     // case _: com.sun.mail.util.MailConnectException => Restart
     case _: MessagingException => Restart
@@ -47,6 +55,17 @@ class RMQActor(conf: Config) extends Actor {
     TypedActor(context).stop(listener)
   }
 
+  /**
+    * Receive: [[mq.RMQProtocol.RMQMessage]]
+    *   Create mailer actor, add it to watch and send same message to mailer actor
+    *   Mailer actor will create and send email message
+    *
+    * Receive: [[mq.RMQProtocol.AckMessage]]
+    *   Send Ack message back to RMQ
+    *
+    * Receive: [[akka.actor.Terminated]]
+    *   Remove mailer actor from watch
+    */
   override def receive: Receive = {
     case msg: RMQMessage =>
       log.debug(s"Rmq: $msg")

@@ -8,6 +8,11 @@ import org.slf4j.LoggerFactory
 import javax.mail.Session
 import util.LoanPattern.using
 
+/**
+  * Send email message
+  *
+  * @param config Configuration
+  */
 class MailSender(config: Config) {
   private val log = LoggerFactory.getLogger(classOf[MailSender])
 

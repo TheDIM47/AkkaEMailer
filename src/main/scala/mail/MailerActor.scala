@@ -32,6 +32,12 @@ object MailerActor {
   def props(conf: Config) = Props(new MailerActor(conf) with MessageSenderImpl)
 }
 
+/**
+  * Create and send email, send ack back to owner, then die
+  * Receive: [[mq.RMQProtocol.RMQMessage]]
+  * Send: [[mq.RMQProtocol.AckMessage]]
+  * @param conf Configuration
+  */
 abstract class MailerActor(conf: Config) extends Actor { that: MessageSender =>
   val log = LoggerFactory.getLogger(classOf[MailerActor])
   import model.RequestProtocol._

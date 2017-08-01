@@ -8,7 +8,9 @@ import javax.mail.internet._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/** Simple Email builder */
+/**
+  * Simple Email builder
+  */
 class EmailBuilder {
   private var from: Option[InternetAddress] = None
   private var reply: Array[InternetAddress] = Array[InternetAddress]()
