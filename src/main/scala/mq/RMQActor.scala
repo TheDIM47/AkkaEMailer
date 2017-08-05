@@ -17,17 +17,17 @@ object RMQActor {
   def props(conf: Config) = Props(new RMQActor(conf))
 }
 
-class MailerMap {
-  type ValueType = (RMQMessage, ActorRef)
-  private val mmap = mutable.Map[Long, ValueType]()
+class MailerMap[A, B] {
+  type ValueType = (B, ActorRef)
+  private val mmap = mutable.Map[A, ValueType]()
 
   def findByRef(ref: ActorRef): Option[ValueType] = mmap.find({
     case (_, (_, r)) => r.equals(ref)
   }).map(_._2)
 
-  def put(tag: Long, value: ValueType): Unit = mmap.put(tag, value)
+  def put(tag: A, value: ValueType): Unit = mmap.put(tag, value)
 
-  def remove(tag: Long): Unit = mmap.remove(tag)
+  def remove(tag: A): Unit = mmap.remove(tag)
 }
 
 /**
@@ -40,7 +40,7 @@ class MailerMap {
 class RMQActor(conf: Config) extends Actor {
   private val log = LoggerFactory.getLogger(classOf[RMQActor])
   private val listener: RMQHandlerT = TypedActor(context).typedActorOf(TypedProps(classOf[RMQHandlerT], new RMQHandler(conf, self)))
-  private val mmap = new MailerMap
+  private val mmap = new MailerMap[Long, RMQMessage]()
 
   /** Supervisor strategy - restart child actors on message/connection problems */
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1.minute) {

@@ -2,6 +2,7 @@ package mail
 
 import com.typesafe.config.Config
 import model.RequestProtocol.RequestMessage
+import model.SimpleRequestProtocol._
 import org.clapper.scalasti.STGroupFile
 import org.slf4j.LoggerFactory
 
@@ -18,6 +19,11 @@ class ReportBuilder(conf: Config) {
   lazy val group = STGroupFile(conf.getString("report.file"))
 
   def build(message: RequestMessage): String = build(conf.getString(s"report.${message.rtype}"), message)
+
+  def build(message: RequestT): String = {
+    val msg = message.toRequestMessage
+    build(conf.getString(s"report.${msg.rtype}"), msg)
+  }
 
   // Template indexed by templateName. See application.conf
   private def build(templateName: String, message: RequestMessage): String = {

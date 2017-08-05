@@ -1,5 +1,7 @@
 package mq
 
+import java.util.UUID
+
 import akka.actor.{ActorRef, TypedActor}
 import com.typesafe.config.Config
 import mq.RMQProtocol._
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory
 object RMQProtocol {
   case class RMQMessage(tag: Long, message: String)
   case class AckMessage(tag: Long)
+  case class AckMessageT(id: UUID)
 }
 
 trait RMQHandlerT {

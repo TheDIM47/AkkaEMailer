@@ -2,20 +2,29 @@ package mail
 
 import akka.actor.{Actor, PoisonPill, Props}
 import com.typesafe.config.Config
-import model.RequestProtocol.RequestMessage
-import mq.RMQProtocol.{AckMessage, RMQMessage}
+import model.RequestProtocol._
+import model.SimpleRequestProtocol._
+import mq.RMQProtocol._
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
 trait MessageSender {
   def sendMessage(conf: Config, event: RequestMessage): Unit
+  def sendMessage(conf: Config, event: RequestT): Unit
 }
 
 trait MessageSenderImpl extends MessageSender {
   override def sendMessage(conf: Config, event: RequestMessage): Unit = {
+    sendMessage(conf, event.toRequest)
+  }
+
+  override def sendMessage(conf: Config, event: RequestT): Unit = {
     val rb = new ReportBuilder(conf)
     val text = rb.build(event)
-    val subj = if ("".equals(event.rtype)) "registration confirmation" else "reset password request" // TODO: Typed RequestMessage
+    val subj = event match {
+      case _: Welcome => "registration confirmation"
+      case _: ResetPassword => "reset password request"
+    }
     val eb = new EmailBuilder()
       .from(conf.getString("mail.from"))
       .replyTo(conf.getString("mail.reply"))
@@ -49,8 +58,12 @@ abstract class MailerActor(conf: Config) extends Actor { that: MessageSender =>
   }
 
   override def receive: Receive = {
+    case msg: RequestT =>
+      sendMessage(conf, msg)
+      sender() ! AckMessageT(msg.id)
+      self ! PoisonPill
+
     case msg: RMQMessage =>
-      val target = sender()
       Json.parse(msg.message).validate[RequestMessage] match {
         case JsSuccess(event, _) =>
           sendMessage(conf, event)
@@ -58,7 +71,7 @@ abstract class MailerActor(conf: Config) extends Actor { that: MessageSender =>
         case JsError(err) =>
           log.error(s"Error parsing message [$msg] $err")
       }
-      target ! AckMessage(msg.tag)
+      sender() ! AckMessage(msg.tag)
       self ! PoisonPill
   }
 }

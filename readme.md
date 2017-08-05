@@ -34,10 +34,15 @@ After sending message, actor send Ack back to RMQActor and die.
 
 RMQActor send Ack to RabbitMQ exchange.
 
+#### Simple emailing
+
+You can send messages with MessageSupervisor actor using typed "Welcome" and "ResetPassword" messages.
+
 #### Using from Java
 
-See src/main/java/app/JavaMain.java    
+See src/main/java/app/JavaMain.java
 
+See src/main/java/app/SimpleJavaMain.java
 
 #### Compile and run
 
