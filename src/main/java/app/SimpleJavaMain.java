@@ -22,17 +22,17 @@ public class SimpleJavaMain {
             SimpleRequestProtocol.RequestT msgWelcome = new SimpleRequestProtocol.Welcome(
                     UUID.randomUUID(), "obi-wan@rootservices.org", "obi-wan", "https://rootservices.org/verify"
             );
-            supervisor.tell(msgWelcome, system.deadLetters());
+            supervisor.tell(msgWelcome, ActorRef.noSender());
 
             SimpleRequestProtocol.RequestT msgReset = new SimpleRequestProtocol.ResetPassword(
                     UUID.randomUUID(), "obi-wan@rootservices.org", "obi-wan", "https://rootservices.org/verify"
             );
-            supervisor.tell(msgReset, system.deadLetters());
+            supervisor.tell(msgReset, ActorRef.noSender());
 
             System.out.println("Press ENTER to exit the system");
             System.in.read();
 
-            supervisor.tell(PoisonPill.getInstance(), system.deadLetters());
+            supervisor.tell(PoisonPill.getInstance(), ActorRef.noSender());
         } finally {
             system.terminate();
         }
